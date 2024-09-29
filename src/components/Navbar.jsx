@@ -1,9 +1,16 @@
 import React from 'react'
-
+import Logo from './logo'
 const Navbar = () => {
   return (
     <div>
-      hello iam navbar.
+      <Logo />
+      <div>
+        <ul>
+          <li>Today</li>
+          <li>Tommorow</li>
+          <li>Monthly Forecast</li>
+        </ul>
+      </div>
     </div>
   )
 }
