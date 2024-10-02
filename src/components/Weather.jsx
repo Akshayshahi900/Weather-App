@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const Weather = () => {
   const [location, setLocation] = useState('');
-  const [weatherData, setWeatherData] = useState(null); // Start with null
+  const [weatherData, setWeatherData] = useState({});
 
   const handleLocationChange = (event) => {
     setLocation(event.target.value);
@@ -14,73 +14,79 @@ const Weather = () => {
     try {
       const response = await fetch(`http://localhost:5000/api/weather?city=${location}`);
       const data = await response.json();
+      console.log(data);
 
-      // Update the state with fetched data
       setWeatherData({
-        temperature: `${data.temperature}°C`,
-        weatherCondition: data.weatherCondition,
-        humidity: `${data.humidity}%`,
-        windSpeed: `${data.windSpeed} km/h`,
-        sunrise: data.sunrise,
-        sunset: data.sunset,
-        dateTime: data.dateTime,
-        forecast: data.forecast, // Update if you implement this feature
+        // coord: {
+        //   lon: data.coord.lon,
+        //   lat: data.coord.lat,
+        // },
+        weather: {
+          main: data.weather[0].main,
+          description: data.weather[0].description,
+          icon: data.weather[0].icon,
+        },
+        main: {
+          temp: data.main.temp,
+          feelsLike: data.main.feels_like, // Corrected from feeks_like to feels_like
+          tempMin: data.main.temp_min,
+          tempMax: data.main.temp_max,
+          pressure: data.main.pressure,
+          humidity: data.main.humidity,
+        },
+        wind: {
+          speed: data.wind.speed,
+          deg: data.wind.deg,
+          gust: data.wind.gust,
+        },
+        clouds: data.clouds.all,
+        visibility: data.visibility,
+        sys: {
+          country: data.sys.country,
+          sunrise: new Date(data.sys.sunrise * 1000).toLocaleTimeString(),
+          sunset: new Date(data.sys.sunset * 1000).toLocaleTimeString(),
+        },
+        name: data.name,
       });
     } catch (error) {
-      console.error('Error fetching weather data:', error);
+      console.log("Error fetching data", error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-300 to-white flex justify-center items-center p-6">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-        <header className="mb-6 flex justify-center space-x-4">
+    <div>
+      <div>
+        <div className='flex items-center justify-center my-4 p-2 bg-neutral-800'>
           <input
             type="text"
-            placeholder="Enter city..."
+            name="city"
+            id=""
+            className='text-xl text-slate-900 w-[450px] py-6 h-10 px-14 border-2 rounded-[20px]'
             value={location}
             onChange={handleLocationChange}
-            className="p-2 border border-gray-300 rounded-md w-2/3"
+            placeholder='Search City...'
           />
+
           <button
+            type="button"
             onClick={handleSearch}
-            className="bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+            className="flex text-gray-900 bg-gradient-to-r from-green-500 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2"
           >
-            Search
+            <img src="./search.gif" alt="" className='w-8' /> Teal to Lime
           </button>
-        </header>
-
-        {weatherData ? (
-          <>
-            <div className="current-weather mb-6 text-center">
-              <div className="text-6xl mb-2">☀️</div>
-              <div className="text-5xl font-bold">{weatherData.temperature}</div>
-              <div className="text-xl text-gray-600">{weatherData.weatherCondition}</div>
-              <div className="text-md text-gray-500 mt-2">{weatherData.dateTime}</div>
-            </div>
-
-            <div className="details mb-6 text-gray-700">
-              <p>Humidity: {weatherData.humidity}</p>
-              <p>Wind: {weatherData.windSpeed}</p>
-              <p>
-                Sunrise: {weatherData.sunrise} | Sunset: {weatherData.sunset}
-              </p>
-            </div>
-
-            <div className="forecast grid grid-cols-3 gap-4">
-              {weatherData.forecast.map((item, index) => (
-                <div key={index} className="forecast-card bg-gray-100 p-4 rounded-lg text-center">
-                  <div>{item.time}</div>
-                  <div className="text-lg font-semibold">{item.temp}</div>
-                  <div>{item.icon}</div>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="text-center text-gray-600">Enter a city to get weather data.</div>
-        )}
+        </div>
       </div>
+
+      {weatherData && weatherData.main ? (
+        <div>
+          <p>Temperature: {weatherData.main.temp}°C</p>
+          {/* Render other weather data here if needed */}
+        </div>
+      ) : (
+        <div>
+          <p>Please enter a city to see the weather.</p>
+        </div>
+      )}
     </div>
   );
 };
