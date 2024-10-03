@@ -7,15 +7,15 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 
-main().catch(err => console.log(err));
+// main().catch(err => console.log(err));
 
-async function main() {
-  await mongoose.connect('mongodb://127.0.0.1:27017/test');
+// async function main() {
+//   await mongoose.connect('mongodb://127.0.0.1:27017/test');
 
-  // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
-}
+//   // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
+// }
 
 
 
@@ -27,7 +27,7 @@ app.use(express.json());
 
 // Root endpoint
 app.get('/', (req, res) => {
-  res.send('Welcome to the Weather API! Use /api/weather?city={city} to get weather data.');
+  res.send('Welcome to the Weather API! Use /api/weather?city={location} to get weather data.');
 });
 
 // Weather API endpoint
@@ -84,6 +84,7 @@ app.get('/api/weather', async (req, res) => {
     };
     //send formatted data as json
     res.json(weatherData);
+    // console.log(weatherData);
   }
 
   catch (error) {

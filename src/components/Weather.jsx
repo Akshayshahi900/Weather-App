@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const Weather = () => {
   const [location, setLocation] = useState('');
-  const [weatherData, setWeatherData] = useState({});
+  const [weatherData, setWeatherData] = useState(null);
 
   const handleLocationChange = (event) => {
     setLocation(event.target.value);
@@ -13,79 +13,65 @@ const Weather = () => {
 
     try {
       const response = await fetch(`http://localhost:5000/api/weather?city=${location}`);
-      const data = await response.json();
-      console.log(data);
+      console.log("Response Status:", response.status);
 
-      setWeatherData({
-        // coord: {
-        //   lon: data.coord.lon,
-        //   lat: data.coord.lat,
-        // },
-        weather: {
-          main: data.weather[0].main,
-          description: data.weather[0].description,
-          icon: data.weather[0].icon,
-        },
-        main: {
-          temp: data.main.temp,
-          feelsLike: data.main.feels_like, // Corrected from feeks_like to feels_like
-          tempMin: data.main.temp_min,
-          tempMax: data.main.temp_max,
-          pressure: data.main.pressure,
-          humidity: data.main.humidity,
-        },
-        wind: {
-          speed: data.wind.speed,
-          deg: data.wind.deg,
-          gust: data.wind.gust,
-        },
-        clouds: data.clouds.all,
-        visibility: data.visibility,
-        sys: {
-          country: data.sys.country,
-          sunrise: new Date(data.sys.sunrise * 1000).toLocaleTimeString(),
-          sunset: new Date(data.sys.sunset * 1000).toLocaleTimeString(),
-        },
-        name: data.name,
-      });
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Weather Data:", data);  // Log the received data
+
+      setWeatherData(data); // Directly set the received data
+
     } catch (error) {
-      console.log("Error fetching data", error);
+      console.error("Error fetching data:", error);
+      alert("Failed to fetch weather data.");
     }
   };
 
   return (
     <div>
-      <div>
-        <div className='flex items-center justify-center my-4 p-2 bg-neutral-800'>
-          <input
-            type="text"
-            name="city"
-            id=""
-            className='text-xl text-slate-900 w-[450px] py-6 h-10 px-14 border-2 rounded-[20px]'
-            value={location}
-            onChange={handleLocationChange}
-            placeholder='Search City...'
-          />
+      <div className='flex items-center justify-center my-4 p-2 bg-neutral-800'>
+        <img className='w-10 position relative left-12' src="./search.gif" alt="" />
+        <input
+          type="text"
+          value={location}
+          onChange={handleLocationChange}
+          placeholder='Search City...'
+          className='text-xl text-slate-900 w-[450px] py-6 h-10 px-14 border-2 rounded-[20px]'
+        />
+        <button
+          onClick={handleSearch}
+          className="flex py-2 position px-4  text-xl  mx-2 border rounded-3xl text-gray-900 bg-gradient-to-r from-green-500 to-lime-200"
+        >
+        <h1 className=''>Search</h1>
 
-          <button
-            type="button"
-            onClick={handleSearch}
-            className="flex text-gray-900 bg-gradient-to-r from-green-500 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2"
-          >
-            <img src="./search.gif" alt="" className='w-8' /> Teal to Lime
-          </button>
-        </div>
+        </button>
       </div>
 
-      {weatherData && weatherData.main ? (
-        <div>
-          <p>Temperature: {weatherData.main.temp}°C</p>
-          {/* Render other weather data here if needed */}
+      {weatherData ? (
+        <div className='text-white border-2 border-white w-[350px]'>
+          <p>Temperature: {weatherData?.main?.temp}°C</p>
+          <p>Feels Like: {weatherData?.main?.feels_like}°C</p>
+          <p>Min Temperature: {weatherData?.main?.temp_min}°C</p>
+          <p>Max Temperature: {weatherData?.main?.temp_max}°C</p>
+          <p>Weather: {weatherData?.weather[0]?.description}</p>
+          <p>Humidity: {weatherData?.main?.humidity}%</p>
+          <p>Wind Speed: {weatherData?.wind?.speed} m/s</p>
+          <p>Country: {weatherData?.sys?.country}</p>
+          <p>City: {weatherData?.name}</p>
+          <p>Sunrise: {weatherData?.sys?.sunrise && new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString()}</p>
+          <p>Sunset: {weatherData?.sys?.sunset && new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}</p>
+
+          {/* Display weather icon */}
+          {weatherData?.weather[0]?.icon && (
+            <img src={`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`} alt="Weather icon" />
+          )}
         </div>
-      ) : (
-        <div>
-          <p>Please enter a city to see the weather.</p>
-        </div>
+      ) : (<div className='text-white text-2xl text-center'>
+        <p>Please enter a city to see the weather.</p>
+      </div>
       )}
     </div>
   );
