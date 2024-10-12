@@ -1,13 +1,16 @@
 import React from 'react'
 import Weather from './components/Weather.jsx'
-import Navbar from './components/Navbar'
+
 
 const App = () => {
   return (
-    <div className='bg-neutral-800 min-h-[100vh]'>
-      <Navbar />
+    <div style={{
       
-      
+      background: 'linear-gradient(to right, rgb(58, 58, 58), rgb(15, 15, 15))',
+    }} className='min-h-[100vh]'>
+
+
+
       <Weather />
     </div>
   )
