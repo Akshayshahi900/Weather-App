@@ -6,98 +6,85 @@ const WeatherCard = ({ weatherData }) => {
   }
 
   const {
-    main: { temp, feelsLike, tempMin, tempMax, humidity, pressure },
+    main: { temp, feels_like, temp_min, temp_max, humidity, pressure },
     weather,
     wind: { speed },
     sys: { sunrise, sunset, country },
     name,
-    clouds,
+    clouds: { all: cloudiness }, // Correct access to cloudiness
   } = weatherData;
 
   // Temperature values in Celsius
-  const tempCelsius = Math.round(temp); // Assuming temp is already in Celsius
-  const feelsLikeCelsius = feelsLike !== undefined ? Math.round(feelsLike) : "N/A";
-  const minTempCelsius = tempMin !== undefined ? Math.round(tempMin) : "N/A";
-  const maxTempCelsius = tempMax !== undefined ? Math.round(tempMax) : "N/A";
+  const tempCelsius = Math.round(temp);
+  const feelsLikeCelsius = feels_like !== undefined ? Math.round(feels_like) : "N/A";
+  const minTempCelsius = temp_min !== undefined ? Math.round(temp_min) : "N/A";
+  const maxTempCelsius = temp_max !== undefined ? Math.round(temp_max) : "N/A";
 
   // Weather icon URL
-  const iconUrl = `https://openweathermap.org/img/wn/${weather[0].icon}@2x.png`;
+  const iconUrl = weather?.[0]?.icon ? `https://openweathermap.org/img/wn/${weather[0].icon}@2x.png` : null;
 
-  // Convert sunrise and sunset strings to a valid time format
-  const convertTo24HourFormat = (time) => {
-    const [timePart, modifier] = time.split(' ');
-    let [hours, minutes, seconds] = timePart.split(':');
-
-    if (modifier === 'pm' && hours !== '12') {
-      hours = parseInt(hours, 10) + 12; // Convert to 24-hour format
-    } else if (modifier === 'am' && hours === '12') {
-      hours = '00'; // Convert 12 AM to 00 hours
-    }
-
-    return `${hours}:${minutes}`;
+  // Convert UNIX timestamp to a valid time format
+  const convertUnixToTime = (unixTime) => {
+    const date = new Date(unixTime * 1000); // Convert to milliseconds
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const sunriseTime = sunrise ? convertTo24HourFormat(sunrise) : "N/A"; // Convert to 24-hour format
-  const sunsetTime = sunset ? convertTo24HourFormat(sunset) : "N/A"; // Convert to 24-hour format
+  const sunriseTime = sunrise ? convertUnixToTime(sunrise) : "N/A";
+  const sunsetTime = sunset ? convertUnixToTime(sunset) : "N/A";
 
   return (
     <div>
-      <div style={{
-        background: 'linear-gradient(to right, rgb(58, 58, 58), rgb(48, 48, 48))',
-      }} className="flex weather-card  w-[730px] h-[330px] text-white   shadow-lg">
-        <div className="flex justify-between items-center ">
+      <div
+        style={{
+          background: 'linear-gradient(to right, rgb(58, 58, 58), rgb(48, 48, 48))',
+        }}
+        className="flex weather-card w-[730px] h-[330px] text-white shadow-lg"
+      >
+        <div className="flex justify-between items-center">
           <div className="temp text-3xl font-bold">{tempCelsius}°C</div>
           <div className="feels-like text-lg">Feels like: {feelsLikeCelsius}°C</div>
         </div>
 
-        <div className="flex  items-center ">
+        <div className="flex items-center">
           <div className="sun-info text-white">
             <div className="sunrise flex gap-4 m-2">
-              <div><img src="./sunrise.png" alt="" /></div>
+              <div><img src="./sunrise.png" alt="Sunrise" /></div>
               <div>
                 <div>Sunrise</div>
                 <div>{sunriseTime}</div>
               </div>
             </div>
-            <div className="sunset flex  m-2 mt-4 gap-4">
-              <div><img src="./sunset.png" alt="" /></div>
+            <div className="sunset flex m-2 mt-4 gap-4">
+              <div><img src="./sunset.png" alt="Sunset" /></div>
               <div>
                 <div>Sunset</div>
                 <div>{sunsetTime}</div>
               </div>
             </div>
           </div>
-          <div className='weather-icon '>
-            <img src={iconUrl} alt="" />
+          <div className="weather-icon">
+            {iconUrl && <img src={iconUrl} alt={weather?.[0]?.description || 'Weather Icon'} />}
           </div>
-          {/* {weather && weather.length > 0 && (
-            <div className="weather-icon">
-              <img
-                src={`https://openweathermap.org/img/wn/${weather[0].icon}@2x.png`} // Correctly using the template string
-                alt={weather[0].description} // Alt text for accessibility
-              />
-            </div>
-          )} */}
         </div>
 
         <div className="humidity">
-          <img src="./humidity.png" alt="" />
+          <img src="./humidity.png" alt="Humidity" />
           <p>{humidity !== undefined ? humidity : "N/A"}%</p>
           <p>Humidity</p>
         </div>
         <div className="wind-speed">
-          <img src="./windspeed.png" alt="" />
+          <img src="./windspeed.png" alt="Wind Speed" />
           <p>{speed !== undefined ? speed : "N/A"} km/h</p>
           <p>Wind Speed</p>
         </div>
         <div className="pressure">
-          <img src="./pressure.png" alt="" />
+          <img src="./pressure.png" alt="Pressure" />
           <p>{pressure !== undefined ? pressure : "N/A"} hPa</p>
           <p>Pressure</p>
         </div>
         <div className="cloudiness">
-          <img className='w-[58px] h-[58px]' src="./clouds.png" alt="" />
-          <p>{clouds !== undefined ? clouds : "N/A"}%</p>
+          <img className="w-[58px] h-[58px]" src="./clouds.png" alt="Cloudiness" />
+          <p>{cloudiness !== undefined ? cloudiness : "N/A"}%</p>
           <p>Cloudiness</p>
         </div>
       </div>

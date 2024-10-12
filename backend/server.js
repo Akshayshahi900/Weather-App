@@ -8,7 +8,11 @@ const PORT = process.env.PORT || 3000; // Default to port 3000
 
 app.use(cors()); // Enable CORS for all routes
 
-app.get('/api/weather', async (req, res) => { 
+app.get('/', (req, res) => {
+  res.send('Welcome to the Weather API! Use /api/weather?city=CityName to get weather data.');
+});
+
+app.get('/api/weather', async (req, res) => {
   const { city } = req.query;
 
   if (!city) {

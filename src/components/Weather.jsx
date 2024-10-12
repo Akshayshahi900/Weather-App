@@ -16,7 +16,7 @@ const Weather = () => {
     if (!location) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/weather?city=${location}`);
+      const response = await fetch(`http://localhost:3000/api/weather?city=${location}`);
       console.log("Response Status:", response.status);
 
       if (!response.ok) {
